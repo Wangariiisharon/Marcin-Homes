@@ -46,7 +46,7 @@ export function SiteFooter() {
               <p className="mt-4 text-xs leading-relaxed text-background/60">
                 Mon — Sat · 09:00 – 19:00
                 <br />
-                concierge@marcinhomes.co
+                info@marcinhomes.co
               </p>
             }
           />

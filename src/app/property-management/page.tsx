@@ -7,6 +7,7 @@ import {
   Sparkles,
   ShieldCheck,
   Wallet,
+  RefreshCw,
 } from "lucide-react";
 import { getPropertyManagementPage } from "@/sanity/lib/queries";
 
@@ -31,6 +32,12 @@ const fallbackPillars = [
     description: "Rent collection, deposits, statements, and timely owner disbursements.",
   },
   {
+    icon: RefreshCw,
+    title: "Debt Recovery & Eviction",
+    description:
+      "Tenant default management, legal notices, and court representation for eviction if necessary.",
+  },
+  {
     icon: FileText,
     title: "Reporting",
     description: "Monthly performance reports with images, vendor receipts, and full transparency.",
@@ -40,11 +47,6 @@ const fallbackPillars = [
     title: "Compliance",
     description:
       "Local regulations, safety certifications, insurance liaison, and dispute resolution.",
-  },
-  {
-    icon: ClipboardList,
-    title: "Owner Concierge",
-    description: "One named point of contact, fluent in your asset and its quirks.",
   },
 ];
 
@@ -73,14 +75,16 @@ const fallbackSteps = [
 
 export default async function PropertyManagementPage() {
   const pageData = (await getPropertyManagementPage()) ?? null;
-  const pillars = pageData?.pillars?.length
-    ? pageData.pillars.map((pillar, index) => ({
-        icon: fallbackPillars[index % fallbackPillars.length].icon,
-        title: pillar.title ?? fallbackPillars[index % fallbackPillars.length].title,
-        description:
-          pillar.description ?? fallbackPillars[index % fallbackPillars.length].description,
-      }))
-    : fallbackPillars;
+  // const pillars = pageData?.pillars?.length
+  //   ? pageData.pillars.map((pillar, index) => ({
+  //       icon: fallbackPillars[index % fallbackPillars.length].icon,
+  //       title: pillar.title ?? fallbackPillars[index % fallbackPillars.length].title,
+  //       description:
+  //         pillar.description ?? fallbackPillars[index % fallbackPillars.length].description,
+  //     }))
+  //   : fallbackPillars;
+  const pillars = fallbackPillars;
+
   const steps = pageData?.steps?.length
     ? pageData.steps.map((step, index) => ({
         n: String(index + 1).padStart(2, "0"),
@@ -88,6 +92,9 @@ export default async function PropertyManagementPage() {
         description: step.description ?? fallbackSteps[index % fallbackSteps.length].description,
       }))
     : fallbackSteps;
+
+  console.log("SANITY PILLARS:", pageData?.pillars);
+  console.log("FALLBACK LENGTH:", fallbackPillars.length);
 
   return (
     <>
@@ -133,7 +140,7 @@ export default async function PropertyManagementPage() {
               Six pillars
             </span>
           </div>
-          <div className="mt-16 grid gap-px border border-border bg-border sm:grid-cols-2 lg:grid-cols-3">
+          <div className="mt-16 grid gap-px border border-border bg-border sm:grid-cols-2 lg:grid-cols-3 flex flex-wrap justify-center">
             {pillars.map(({ icon: Icon, title, description }) => (
               <div key={title} className="flex flex-col gap-5 bg-background p-10">
                 <Icon className="h-6 w-6 text-gold" />

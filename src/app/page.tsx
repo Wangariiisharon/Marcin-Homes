@@ -1,41 +1,10 @@
 import Link from "next/link";
 import { ArrowUpRight, Clock, Key, Sparkles } from "lucide-react";
+import { getListings } from "@/sanity/lib/queries";
+import { urlFor } from "@/sanity/lib/image";
 
 const heroHome = "/assets/northands.jpg";
-const listing1 = "/assets/listing-1.jpg";
-const listing2 = "/assets/listing-2.jpg";
-const listing3 = "/assets/listing-3.jpg";
 const propertyManagement = "/assets/property-management.jpg";
-
-const featured = [
-  {
-    img: listing1,
-    title: "Villa Aurelia",
-    location: "Hillside · Los Angeles",
-    price: "$12,400,000",
-    beds: 6,
-    baths: 7,
-    sqft: "9,200",
-  },
-  {
-    img: listing2,
-    title: "Skyline Penthouse 47B",
-    location: "Tribeca · New York",
-    price: "$8,950,000",
-    beds: 4,
-    baths: 5,
-    sqft: "5,800",
-  },
-  {
-    img: listing3,
-    title: "Casa del Mar",
-    location: "Coast · Mallorca",
-    price: "€6,200,000",
-    beds: 5,
-    baths: 6,
-    sqft: "7,400",
-  },
-];
 
 function Stat({ value, label }: { value: string; label: string }) {
   return (
@@ -46,7 +15,19 @@ function Stat({ value, label }: { value: string; label: string }) {
   );
 }
 
-export default function HomePage() {
+export default async function HomePage() {
+  const sanityListings = (await getListings()) ?? [];
+
+  const featured = sanityListings.slice(0, 3).map((listing) => ({
+    img: listing.image ? (urlFor(listing.image) ?? "") : "",
+    title: listing.title ?? "Untitled listing",
+    location: listing.location ?? "",
+    price: listing.price ?? "",
+    beds: listing.beds ?? 0,
+    baths: listing.baths ?? 0,
+    sqft: parseInt(listing.sqft ?? "0", 10),
+  }));
+
   return (
     <>
       <section className="relative isolate">
@@ -128,32 +109,38 @@ export default function HomePage() {
             </Link>
           </div>
 
-          <div className="mt-16 grid gap-10 md:grid-cols-2 lg:grid-cols-3">
-            {featured.map((p) => (
-              <article key={p.title} className="group">
-                <div className="relative aspect-[4/5] overflow-hidden">
-                  <img
-                    src={p.img}
-                    alt={p.title}
-                    width={1280}
-                    height={960}
-                    loading="lazy"
-                    className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.04]"
-                  />
-                </div>
-                <div className="mt-6 flex items-baseline justify-between gap-4">
-                  <h3 className="font-display text-2xl">{p.title}</h3>
-                  <span className="text-xs uppercase tracking-[0.2em] text-gold">{p.price}</span>
-                </div>
-                <p className="mt-2 text-xs uppercase tracking-[0.2em] text-background/60">
-                  {p.location}
-                </p>
-                <p className="mt-4 text-sm text-background/70">
-                  {p.beds} bed · {p.baths} bath · {p.sqft} sq ft
-                </p>
-              </article>
-            ))}
-          </div>
+          {featured.length === 0 ? (
+            <p className="mt-16 text-sm text-background/70">
+              No featured listings available right now.
+            </p>
+          ) : (
+            <div className="mt-16 grid gap-10 md:grid-cols-2 lg:grid-cols-3">
+              {featured.map((p, index) => (
+                <article key={p.title + index} className="group">
+                  <div className="relative aspect-[4/5] overflow-hidden">
+                    <img
+                      src={p.img}
+                      alt={p.title}
+                      width={1280}
+                      height={960}
+                      loading="lazy"
+                      className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.04]"
+                    />
+                  </div>
+                  <div className="mt-6 flex items-baseline justify-between gap-4">
+                    <h3 className="font-display text-2xl">{p.title}</h3>
+                    <span className="text-xs uppercase tracking-[0.2em] text-gold">{p.price}</span>
+                  </div>
+                  <p className="mt-2 text-xs uppercase tracking-[0.2em] text-background/60">
+                    {p.location}
+                  </p>
+                  <p className="mt-4 text-sm text-background/70">
+                    {p.beds} bed · {p.baths} bath · {p.sqft.toLocaleString()} sq ft
+                  </p>
+                </article>
+              ))}
+            </div>
+          )}
         </div>
       </section>
 

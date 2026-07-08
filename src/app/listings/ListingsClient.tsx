@@ -24,9 +24,18 @@ type Listing = {
   description: string;
 };
 
+const FILTERS = ["All", "For Sale", "For Lease", "For Rent"] as const;
+type Filter = (typeof FILTERS)[number];
+
 export default function ListingsClient({ listings }: { listings: Listing[] }) {
   const [active, setActive] = useState<Listing | null>(null);
   const [imgIndex, setImgIndex] = useState(0);
+  const [filter, setFilter] = useState<Filter>("All");
+
+  const filteredListings =
+    filter === "All"
+      ? listings
+      : listings.filter((l) => l.status.trim().toLowerCase() === filter.trim().toLowerCase());
 
   const openListing = (l: Listing) => {
     setActive(l);
@@ -51,16 +60,18 @@ export default function ListingsClient({ listings }: { listings: Listing[] }) {
           </p>
 
           <div className="mt-12 flex flex-wrap items-center gap-2">
-            {["All", "For Sale", "For Lease", "For Rent"].map((filter, index) => (
+            {FILTERS.map((f) => (
               <button
-                key={filter}
+                key={f}
+                type="button"
+                onClick={() => setFilter(f)}
                 className={`border px-5 py-2 text-[11px] uppercase tracking-[0.2em] transition-colors ${
-                  index === 0
+                  filter === f
                     ? "border-foreground bg-foreground text-background"
                     : "border-border text-foreground/70 hover:border-foreground hover:text-foreground"
                 }`}
               >
-                {filter}
+                {f}
               </button>
             ))}
           </div>
@@ -69,13 +80,13 @@ export default function ListingsClient({ listings }: { listings: Listing[] }) {
 
       <section className="mx-auto max-w-[1400px] px-6 py-20 lg:px-12 lg:py-28">
         <div className="grid gap-x-10 gap-y-20 md:grid-cols-2">
-          {listings.length === 0 ? (
-            <p>No listings currently available.</p>
+          {filteredListings.length === 0 ? (
+            <p>No listings currently available{filter !== "All" ? ` for "${filter}"` : ""}.</p>
           ) : (
-            listings.map((property, index) => (
+            filteredListings.map((property, index) => (
               <article
                 key={property.title + index}
-                className={`group ${index % 2 === 1 ? "md:mt-24" : ""}`}
+                className={`group cursor-pointer ${index % 2 === 1 ? "md:mt-24" : ""}`}
                 onClick={() => openListing(property)}
               >
                 <div className="relative aspect-[4/5] overflow-hidden">
@@ -106,6 +117,7 @@ export default function ListingsClient({ listings }: { listings: Listing[] }) {
                   </p>
                   <Link
                     href="/contact"
+                    onClick={(e) => e.stopPropagation()}
                     className="group/btn inline-flex items-center gap-2 text-[11px] uppercase tracking-[0.2em] text-foreground hover:text-gold"
                   >
                     Enquire

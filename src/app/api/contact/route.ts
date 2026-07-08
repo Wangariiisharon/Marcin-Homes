@@ -12,11 +12,15 @@ export async function POST(req: Request) {
   try {
     const data = await req.json();
 
+    const roleLabel =
+      data.role === "landlord" ? "Landlord" : data.role === "tenant" ? "Tenant" : "Not specified";
+
     const message = `
 New Enquiry:
 Name: ${data.first} ${data.last}
 Email: ${data.email}
 Phone: ${data.phone}
+Role: ${roleLabel}
 Interest: ${data.interest}
 Message: ${data.message}
 `;

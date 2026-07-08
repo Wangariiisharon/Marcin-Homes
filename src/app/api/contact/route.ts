@@ -22,7 +22,7 @@ Message: ${data.message}
 `;
 
     await sms.send({
-      to: ["+254736620585"],
+      to: ["+254742386462"],
       message,
     });
 
